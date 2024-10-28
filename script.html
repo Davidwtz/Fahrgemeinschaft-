@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fahrgemeinschaften finden</title>
+    <link rel="stylesheet" href="style.css">
+<style type="text/css" id="dcoder_stylesheet">/* style.css */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+header {
+    width: 100%;
+    background-color: #0044cc;
+    padding: 1rem;
+    text-align: center;
+    color: white;
+}
+
+h1 {
+    font-size: 2rem;
+}
+
+main {
+    width: 90%;
+    max-width: 600px;
+    margin-top: 2rem;
+}
+
+section {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #0044cc;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+input[type="text"] {
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    padding: 0.75rem;
+    background-color: #0044cc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+button:hover {
+    background-color: #003399;
+}</style></head>
+<body>
+    <header>
+        <h1>Fahrgemeinschaften finden</h1>
+    </header>
+    <main>
+        <section>
+            <h2>Fahrgemeinschaft suchen</h2>
+            <form id="search-form">
+                <label for="start">Startstadt:</label>
+                <input type="text" id="start" required>
+                <label for="ziel">Zielstadt:</label>
+                <input type="text" id="ziel" required>
+                <button type="submit">Suchen</button>
+            </form>
+        </section>
+        <section>
+            <h2>Fahrgemeinschaft anbieten</h2>
+            <form id="offer-form">
+                <label for="start-offer">Startstadt:</label>
+                <input type="text" id="start-offer" required>
+                <label for="ziel-offer">Zielstadt:</label>
+                <input type="text" id="ziel-offer" required>
+                <label for="preis">Preis oder Prozentsatz:</label>
+                <input type="text" id="preis" required>
+                <button type="submit">Angebot hinzufügen</button>
+            </form>
+        </section>
+    </main>
+    <script src="script.js"></script>
+
+<script type="text/javascript" id="dcoder_script">// script.js
+
+// Element zur Anzeige der Suchergebnisse
+const searchResults = document.createElement("div");
+document.body.appendChild(searchResults);
+
+// Suche-Formular
+const searchForm = document.getElementById("search-form");
+searchForm.addEventListener("submit", async (event) => {
+    event.preventDefault(); // Verhindert das Neuladen der Seite
+
+    // Daten aus den Eingabefeldern sammeln
+    const startCity = document.getElementById("start").value;
+    const destinationCity = document.getElementById("ziel").value;
+
+    // Anfrage an den Server senden
+    const response = await fetch("http://localhost:3000/api/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ startCity, destinationCity }),
+    });
+
+    // Ergebnis abrufen und anzeigen
+    const rides = await response.json();
+    displaySearchResults(rides);
+});
+
+// Funktion zur Anzeige der Suchergebnisse
+function displaySearchResults(rides) {
+    searchResults.innerHTML = "<h2>Suchergebnisse:</h2>";
+    if (rides.length > 0) {
+        rides.forEach((ride) => {
+            const rideElement = document.createElement("div");
+            rideElement.textContent = `Start: ${ride.startCity}, Ziel: ${ride.destinationCity}, Preis/Anteil: ${ride.priceOrPercentage}`;
+            searchResults.appendChild(rideElement);
+        });
+    } else {
+        searchResults.innerHTML += "<p>Keine Fahrgemeinschaften gefunden.</p>";
+    }
+}
+
+// Angebot-Formular
+const offerForm = document.getElementById("offer-form");
+offerForm.addEventListener("submit", async (event) => {
+    event.preventDefault(); // Verhindert das Neuladen der Seite
+
+    // Daten aus den Eingabefeldern sammeln
+    const startCity = document.getElementById("start-offer").value;
+    const destinationCity = document.getElementById("ziel-offer").value;
+    const priceOrPercentage = document.getElementById("preis").value;
+
+    // Anfrage an den Server senden
+    const response = await fetch("http://localhost:3000/api/offer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ startCity, destinationCity, priceOrPercentage }),
+    });
+
+    // Bestätigung anzeigen
+    const result = await response.json();
+    alert(result.message);
+});</script></body></html>
