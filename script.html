@@ -1,0 +1,65 @@
+<html>
+ <head></head>
+ <body>
+<script type="text/javascript" id="dcoder_script">// script.js
+
+// Element zur Anzeige der Suchergebnisse
+const searchResults = document.createElement("div");
+document.body.appendChild(searchResults);
+
+// Suche-Formular
+const searchForm = document.getElementById("search-form");
+searchForm.addEventListener("submit", async (event) => {
+    event.preventDefault(); // Verhindert das Neuladen der Seite
+
+    // Daten aus den Eingabefeldern sammeln
+    const startCity = document.getElementById("start").value;
+    const destinationCity = document.getElementById("ziel").value;
+
+    // Anfrage an den Server senden
+    const response = await fetch("http://localhost:3000/api/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ startCity, destinationCity }),
+    });
+
+    // Ergebnis abrufen und anzeigen
+    const rides = await response.json();
+    displaySearchResults(rides);
+});
+
+// Funktion zur Anzeige der Suchergebnisse
+function displaySearchResults(rides) {
+    searchResults.innerHTML = "<h2>Suchergebnisse:</h2>";
+    if (rides.length > 0) {
+        rides.forEach((ride) => {
+            const rideElement = document.createElement("div");
+            rideElement.textContent = `Start: ${ride.startCity}, Ziel: ${ride.destinationCity}, Preis/Anteil: ${ride.priceOrPercentage}`;
+            searchResults.appendChild(rideElement);
+        });
+    } else {
+        searchResults.innerHTML += "<p>Keine Fahrgemeinschaften gefunden.</p>";
+    }
+}
+
+// Angebot-Formular
+const offerForm = document.getElementById("offer-form");
+offerForm.addEventListener("submit", async (event) => {
+    event.preventDefault(); // Verhindert das Neuladen der Seite
+
+    // Daten aus den Eingabefeldern sammeln
+    const startCity = document.getElementById("start-offer").value;
+    const destinationCity = document.getElementById("ziel-offer").value;
+    const priceOrPercentage = document.getElementById("preis").value;
+
+    // Anfrage an den Server senden
+    const response = await fetch("http://localhost:3000/api/offer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ startCity, destinationCity, priceOrPercentage }),
+    });
+
+    // Bestätigung anzeigen
+    const result = await response.json();
+    alert(result.message);
+});</script></body></html>
